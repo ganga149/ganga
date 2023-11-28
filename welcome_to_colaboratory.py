@@ -7,42 +7,26 @@ Original file is located at
     https://colab.research.google.com/notebooks/intro.ipynb
 """
 
-import pandas as pd
-S = pd.Series([1, 2, 3, 4, 5])
-B = pd.Series([2, 4, 6, 8, 10])
+# Commented out IPython magic to ensure Python compatibility.
+# %load_ext tensorboard
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.callbacks import TensorBoard
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu'),
+    Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+tensorboard_callback = TensorBoard(log_dir='./logs', histogram_freq=1)
+model.fit(x_train, y_train, epochs=5, batch_size=32, validation_data=(x_test, y_test), callbacks=[tensorboard_callback])
+test_loss,test_acc=model.evaluate(x_test,y_test)
+print('Test accuracy',test_acc)
 
-M = S[S.isin(B)]
-print(M)
-
-import matplotlib.pyplot as plt
-df=pd.read_csv('/content/mtcars (1).csv')
-plt.hist(df['mpg'])
-plt.xlabel('miles per gallon')
-plt.ylabel('frequency')
-plt.title('HISTOGRAM')
-plt.show()
-
-import matplotlib.pyplot as plt
-df=pd.read_csv('/content/mtcars (1).csv')
-plt.scatter(df['wt'],df['mpg'])
-plt.xlabel('Cars')
-plt.ylabel('weight')
-plt.show()
-
-import pandas as pd
-import matplotlib.pyplot as plt
-df=pd.read_csv('/content/mtcars (1).csv')
-trans=(df['am'].value_counts())
-trans.plot(kind='bar')
-plt.xlabel('Type')
-plt.ylabel('frequency')
-plt.title('frequency distribution')
-plt.show()
-
-import matplotlib.pyplot as plt
-df=pd.read_csv('/content/mtcars (1).csv')
-plt.boxplot(df['mpg'])
-plt.title('boxplot')
-plt.xlabel('height')
-plt.ylabel('Frequency')
-plt.show()
+# %tensorboard --logdir=./logs
